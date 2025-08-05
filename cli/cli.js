@@ -9,6 +9,7 @@ import {getAllAudioScenario} from "./scenarios/get-all-audio.scenario.js";
 import {controller, vkApiService} from "../lib/vk-api.service.js";
 import chalk from 'chalk';
 import * as path from "node:path";
+import {getPlaylistTracksByLinkScenario, getPlaylistTracksScenario} from "./scenarios/get-playlist-tracks.js";
 
 program.version("1.0.0").description("VK Audio Downloader");
 
@@ -147,6 +148,10 @@ program.action(async () => {
 
     if (choice === choices[0]) {
       await getAllAudioScenario(config['save_path']);
+    }
+
+    if (choice === choices[3]) {
+      await getPlaylistTracksByLinkScenario(config['save_path'])
     }
 
     if (choice === choices[5]) {
