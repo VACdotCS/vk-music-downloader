@@ -9,7 +9,8 @@ import {getAllAudioScenario} from "./scenarios/get-all-audio.scenario.js";
 import {controller, vkApiService} from "../lib/vk-api.service.js";
 import chalk from 'chalk';
 import * as path from "node:path";
-import {getPlaylistTracksByLinkScenario, getPlaylistTracksScenario} from "./scenarios/get-playlist-tracks.js";
+import {getPlaylistTracksByLinkScenario} from "./scenarios/get-playlist-tracks.scenario.js";
+import {getPlaylistTracksScenario} from "./scenarios/get-all-playlists-tracks.scenario.js";
 
 program.version("1.0.0").description("VK Audio Downloader");
 
@@ -51,6 +52,49 @@ async function getSaveFolder(config) {
 
   config['save_path'] = path.resolve(savePath);
   fs.writeFileSync('./config.json', JSON.stringify(config));
+}
+
+export async function mainMenu(config = global['myConfig']) {
+  const choices = [
+    "Скачать все треки из основного плейлиста",
+    "Скачать все плейлисты",
+    "Скачать трек по ссылке",
+    "Скачать плейлист по ссылке",
+    "Показать путь для скачивания",
+    "Изменить путь для скачивания",
+    "Вывести заблокированные в регионе треки",
+    "Очистить весь кэш (удалит всё, кроме пути сохранения треков)"
+  ];
+
+  const { choice } = await inquirer.prompt([
+    {
+      type: "list",
+      name: "choice",
+      message: "Выберите действие",
+      choices
+    },
+  ]);
+
+  if (choice === choices[0]) {
+    await getAllAudioScenario(config['save_path']);
+  }
+
+  if (choice === choices[1]) {
+    await getPlaylistTracksScenario(config['save_path'])
+  }
+
+  if (choice === choices[3]) {
+    await getPlaylistTracksByLinkScenario(config['save_path'])
+  }
+
+  if (choice === choices[5]) {
+    await getSaveFolder(config);
+  }
+
+  if (choice === choices[8]) {
+    fs.rmSync('./errors.json');
+    fs.rmSync('./all-music-data.json');
+  }
 }
 
 function authorInfo() {
@@ -125,43 +169,9 @@ program.action(async () => {
     vkApiService.setAccessToken(accessToken);
     vkApiService.setUserId(userId);
 
-    const choices = [
-      "Скачать все треки из основного плейлиста",
-      "Скачать все плейлисты",
-      "Скачать трек по ссылке",
-      "Скачать плейлист по ссылке",
-      "Скачать плейлист друга",
-      "Показать путь для скачивания",
-      "Изменить путь для скачивания",
-      "Вывести заблокированные в регионе треки",
-      "Очистить весь кэш (удалит всё, кроме пути сохранения треков)"
-    ];
+    global['myConfig'] = config;
 
-    const { choice } = await inquirer.prompt([
-      {
-        type: "list",
-        name: "choice",
-        message: "Выберите действие",
-        choices
-      },
-    ]);
-
-    if (choice === choices[0]) {
-      await getAllAudioScenario(config['save_path']);
-    }
-
-    if (choice === choices[3]) {
-      await getPlaylistTracksByLinkScenario(config['save_path'])
-    }
-
-    if (choice === choices[5]) {
-      await getSaveFolder(config);
-    }
-
-    if (choice === choices[8]) {
-      fs.rmSync('./errors.json');
-      fs.rmSync('./all-music-data.json');
-    }
+    await mainMenu()
   } catch (e) {
     console.log(e);
     console.log(red("❌ Что-то пошло не так"));
