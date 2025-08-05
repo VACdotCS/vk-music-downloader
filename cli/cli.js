@@ -11,6 +11,7 @@ import chalk from 'chalk';
 import * as path from "node:path";
 import {getPlaylistTracksByLinkScenario} from "./scenarios/get-playlist-tracks.scenario.js";
 import {getPlaylistTracksScenario} from "./scenarios/get-all-playlists-tracks.scenario.js";
+import {getTrackByLinkScenario} from "./scenarios/get-track-by-link.scenario.js";
 
 program.version("1.0.0").description("VK Audio Downloader");
 
@@ -58,12 +59,13 @@ export async function mainMenu(config = global['myConfig']) {
   const choices = [
     "Скачать все треки из основного плейлиста",
     "Скачать все плейлисты",
-    "Скачать трек по ссылке",
-    "Скачать плейлист по ссылке",
-    "Показать путь для скачивания",
-    "Изменить путь для скачивания",
+    "🔗 Скачать трек по ссылке",
+    "🔗 Скачать плейлист по ссылке",
+    "⚙️ Показать путь для скачивания",
+    "⚙️ Изменить путь для скачивания",
     "Вывести заблокированные в регионе треки",
-    "Очистить весь кэш (удалит всё, кроме пути сохранения треков)"
+    "⚙️ Очистить весь кэш (удалит всё, кроме пути сохранения треков)",
+    "🚪👋 Выход"
   ];
 
   const { choice } = await inquirer.prompt([
@@ -76,24 +78,42 @@ export async function mainMenu(config = global['myConfig']) {
   ]);
 
   if (choice === choices[0]) {
-    await getAllAudioScenario(config['save_path']);
+    await getAllAudioScenario(config['save_path'])
+      .then(mainMenu)
   }
 
   if (choice === choices[1]) {
     await getPlaylistTracksScenario(config['save_path'])
+      .then(mainMenu)
+  }
+
+  if (choice === choices[2]) {
+    await getTrackByLinkScenario(config['save_path'])
+      .then(mainMenu)
   }
 
   if (choice === choices[3]) {
     await getPlaylistTracksByLinkScenario(config['save_path'])
+      .then(mainMenu)
+  }
+
+  if (choice === choices[4]) {
+    console.log(`Путь: ${config['save_path']}`);
+    return mainMenu()
   }
 
   if (choice === choices[5]) {
-    await getSaveFolder(config);
+    await getSaveFolder(config)
+      .then(mainMenu);
   }
 
   if (choice === choices[8]) {
     fs.rmSync('./errors.json');
     fs.rmSync('./all-music-data.json');
+  }
+
+  if (choice === choices[choices.length - 1]) {
+    process.exit(0);
   }
 }
 
