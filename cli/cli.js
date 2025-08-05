@@ -111,8 +111,6 @@ program.action(async () => {
       },
     ]);
 
-    console.log(config);
-
     if (!config['save_path']) {
       await getSaveFolder(config);
     }
@@ -153,6 +151,11 @@ program.action(async () => {
 
     if (choice === choices[5]) {
       await getSaveFolder(config);
+    }
+
+    if (choice === choices[8]) {
+      fs.rmSync('./errors.json');
+      fs.rmSync('./all-music-data.json');
     }
   } catch (e) {
     console.log(e);
