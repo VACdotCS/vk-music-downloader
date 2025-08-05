@@ -45,7 +45,9 @@ export async function getAllAudioScenario(savePath) {
         .replace(/\//g, '&')
         .replace(/\|/g, '')
         .replace(/\./g, '')
-        .replace(/\?/g, '') + '.mp3'
+        .replace(/\?/g, '')
+        .replace(/>/g, '')
+        .replace(/</g, '') + '.mp3'
 
       const tempFilePath = path.resolve(`${savePath}/temp-${generateHash({ length: 4 })}.ts`);
       const mp3FilePath = path.resolve(`${savePath}/${namingIndex}. ${fileName}`);
