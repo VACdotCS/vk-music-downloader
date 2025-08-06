@@ -109,7 +109,7 @@ export async function mainMenu(config = global['myConfig']) {
       .then(mainMenu);
   }
 
-  if (choice === choices[5]) {
+  if (choice === choices[6]) {
     console.log(`Путь: ${__dirname}`);
     return mainMenu();
   }
