@@ -160,7 +160,7 @@ async function getAccessTokenData() {
   console.log('Token: ', tokenJson.data);
 
   global['myConfig']['token'] = tokenJson.data;
-  fs.writeFileSync('./config.json', JSON.stringify(global['myConfig']['token']));
+  fs.writeFileSync('./config.json', JSON.stringify(global['myConfig']));
 
   const userId = tokenJson.data.user_id;
 
