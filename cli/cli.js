@@ -249,7 +249,7 @@ process.on("SIGINT", () => {
 
   // Cleat temp files
   const path = global['myConfig']['save_path'];
-  const files = fs.readdirSync(path);
+  const files = fs.readdirSync(path, { recursive: true});
 
   for (const file of files) {
     if (/temp-.*\.ts/.test(file)) {
