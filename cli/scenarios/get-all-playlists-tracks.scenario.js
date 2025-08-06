@@ -12,9 +12,25 @@ export async function getPlaylistTracksScenario(savePath) {
     throw err;
   });
 
-  spinner.succeed('Плейлист найдены.\n');
+  spinner.succeed('Плейлисты найдены');
 
-  for (const p of playlistsList) {
+  const sp2 = ora('Узнаю, что в них за треки').start();
+
+  const playlistsMetadata = [];
+
+  for (const playlist of playlistsList) {
+    const playListTracks = await vkApiService.getTracksOfUserPlaylist(playlist.id);
+
+    playlistsMetadata.push({
+      title: playlist.title,
+      tracks: playListTracks,
+    });
+  }
+
+  sp2.succeed('Узнал списки треков\n');
+
+
+  for (const p of playlistsMetadata) {
     const pDownloadSpinner = ora(`Скачиваю плейлист: ${p.title}`).start();
     const _savePath = path.resolve(`${savePath}/${p.title}`);
 
@@ -22,19 +38,14 @@ export async function getPlaylistTracksScenario(savePath) {
       fs.mkdirSync(_savePath);
     } catch (e) {}
 
-    const playListTracks = await vkApiService.getTracksOfUserPlaylist(p.id).catch((err) => {
-      pDownloadSpinner.fail();
-      throw err;
-    });
-
     const toDownload = [];
-    fs.writeFileSync(`${p.title}-music-data.json`, JSON.stringify(playListTracks));
+    fs.writeFileSync(`${p.title}-music-data.json`, JSON.stringify(p.tracks));
 
     const downloadedFilesMeta = fs.readdirSync(_savePath);
 
     let namingIndex = 1;
 
-    for (const audio of playListTracks) {
+    for (const audio of p.tracks) {
       if (downloadedFilesMeta.find((s) => s.includes(`${audio.artist} - ${audio.title}`))) {
         namingIndex++;
       } else {
