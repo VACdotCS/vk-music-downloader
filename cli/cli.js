@@ -229,8 +229,11 @@ const mainFunc = async () => {
 
     await mainMenu()
   } catch (e) {
-    console.log(red("❌ Что-то пошло не так"));
+    if (e.message.includes('User force closed the prompt with SIGINT')) {
+      process.emit('SIGINT');
+    }
 
+    console.log(red("❌ Что-то пошло не так"));
     if (e.message.includes('access_token has expired')) {
       await getAccessTokenData();
       return mainFunc();
@@ -241,9 +244,19 @@ const mainFunc = async () => {
 program.action(mainFunc);
 
 process.on("SIGINT", () => {
-  // TODO: clear savePath folder from temp files
   console.log(red("\n🛑 Вы нажали CTRL+C, тем самым закрыв программу"));
   controller.abort();
+
+  // Cleat temp files
+  const path = global['myConfig']['save_path'];
+  const files = fs.readdirSync(path);
+
+  for (const file of files) {
+    if (/temp-.*\.ts/.test(file)) {
+      fs.unlinkSync(path + `/${file}`);
+    }
+  }
+
   process.exit(0);
 });
 
