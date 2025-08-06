@@ -6,7 +6,12 @@ import {downloadBatchOfTracks} from "../../lib/download.utils.js";
 
 export async function getPlaylistTracksScenario(savePath) {
   const spinner = ora('Скачиваю список ваших плейлистов').start();
-  const playlistsList = await vkApiService.getPlaylists();
+
+  const playlistsList = await vkApiService.getPlaylists().catch((err) => {
+    spinner.fail();
+    throw err;
+  });
+
   spinner.succeed('Плейлист найдены.\n');
 
   for (const p of playlistsList) {
@@ -17,7 +22,10 @@ export async function getPlaylistTracksScenario(savePath) {
       fs.mkdirSync(_savePath);
     } catch (e) {}
 
-    const playListTracks = await vkApiService.getTracksOfUserPlaylist(p.id);
+    const playListTracks = await vkApiService.getTracksOfUserPlaylist(p.id).catch((err) => {
+      pDownloadSpinner.fail();
+      throw err;
+    });
 
     const toDownload = [];
     fs.writeFileSync(`${p.title}-music-data.json`, JSON.stringify(playListTracks));

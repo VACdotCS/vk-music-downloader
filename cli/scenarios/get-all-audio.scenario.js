@@ -5,7 +5,12 @@ import {downloadBatchOfTracks, fileNameRegExp} from "../../lib/download.utils.js
 
 export async function getAllAudioScenario(savePath) {
   const spinner = ora('Скачиваю список ваших треков').start();
-  const audioList = await vkApiService.getAudiosList().then((list) => list.reverse());
+
+  const audioList = await vkApiService.getAudiosList().then((list) => list.reverse()).catch((err) => {
+    spinner.fail();
+    throw err;
+  });
+
   spinner.succeed('Список треков получен. Запускаю скачивание.\n');
 
   const toDownload = [];

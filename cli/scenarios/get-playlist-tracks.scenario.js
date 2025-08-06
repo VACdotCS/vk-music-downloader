@@ -14,7 +14,10 @@ export async function getPlaylistTracksByLinkScenario(savePath) {
   ]);
 
   const spinner = ora('Скачиваю список треков плейлиста').start();
-  const playListTracks = await vkApiService.getTracksOfPlaylistByLink(link);
+  const playListTracks = await vkApiService.getTracksOfPlaylistByLink(link).catch((err) => {
+    spinner.fail();
+    throw err;
+  });
 
   spinner.succeed('Треки найдены.\n');
 
