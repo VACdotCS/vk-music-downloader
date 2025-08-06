@@ -151,7 +151,7 @@ async function getAccessTokenData() {
     {
       type: "input",
       name: "data",
-      message: "Введите свой access token (гайд тут): ", // TODO: Вставить ссылку на гайд, как достать токен/id
+      message: "Введите свой access token (гайд тут https://github.com/VACdotCS/vk-music-downloader): ", // TODO: Вставить ссылку на гайд, как достать токен/id
     },
   ]);
 

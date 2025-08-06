@@ -2,7 +2,7 @@ import fs from "fs";
 import {vkApiService} from "../../lib/vk-api.service.js";
 import * as path from "node:path";
 import ora from "ora";
-import {downloadBatchOfTracks} from "../../lib/download.utils.js";
+import {downloadBatchOfTracks, getNormalFileName} from "../../lib/download.utils.js";
 
 export async function getPlaylistTracksScenario(savePath) {
   const spinner = ora('Скачиваю список ваших плейлистов').start();
@@ -19,7 +19,10 @@ export async function getPlaylistTracksScenario(savePath) {
   const playlistsMetadata = [];
 
   for (const playlist of playlistsList) {
-    const playListTracks = await vkApiService.getTracksOfUserPlaylist(playlist.id);
+    const playListTracks = await vkApiService.getTracksOfUserPlaylist(playlist.id).catch((err) => {
+      sp2.fail();
+      throw err;
+    });
 
     playlistsMetadata.push({
       title: playlist.title,
@@ -31,12 +34,30 @@ export async function getPlaylistTracksScenario(savePath) {
 
 
   for (const p of playlistsMetadata) {
-    const pDownloadSpinner = ora(`Скачиваю плейлист: ${p.title}`).start();
+    const pDownloadSpinner = ora(`Скачиваю плейлист: ${p.title}`)
     const _savePath = path.resolve(`${savePath}/${p.title}`);
 
     try {
       fs.mkdirSync(_savePath);
     } catch (e) {}
+
+    // Check if playlist downloaded
+    const tracksInDir = fs.readdirSync(_savePath);
+
+    let counter = 0;
+    for (const trackInDir of tracksInDir) {
+      for (const track of p.tracks) {
+        const trackFileName = getNormalFileName(track);
+        if (trackInDir.includes(trackFileName)) {
+          counter++;
+        }
+      }
+    }
+
+    if (counter === p.tracks.length) {
+      pDownloadSpinner.succeed(`Плейлист уже скачан: ${p.title}`);
+      continue;
+    }
 
     const toDownload = [];
     fs.writeFileSync(`${p.title}-music-data.json`, JSON.stringify(p.tracks));
@@ -53,7 +74,7 @@ export async function getPlaylistTracksScenario(savePath) {
       }
     }
 
-    await downloadBatchOfTracks(toDownload, savePath, namingIndex);
+    await downloadBatchOfTracks(toDownload, _savePath, namingIndex);
     pDownloadSpinner.succeed(`Плейлист скачан: ${p.title}`);
   }
 }
