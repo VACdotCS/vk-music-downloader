@@ -1,6 +1,9 @@
 # vk-music-downloader
 CLI with useful tool to work with VK Music
 
+# For npm users
+github: https://github.com/VACdotCS/vk-music-downloader
+
 # How to get access token? (Как получить токен?)
 1. Откройте ВК
 2. Нажмите правую кнопку -> Посмотреть код
