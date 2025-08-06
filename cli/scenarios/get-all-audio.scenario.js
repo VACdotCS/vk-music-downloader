@@ -1,7 +1,7 @@
 import fs from "fs";
 import {vkApiService} from "../../lib/vk-api.service.js";
 import ora from "ora";
-import {downloadBatchOfTracks} from "../../lib/download.utils.js";
+import {downloadBatchOfTracks, fileNameRegExp} from "../../lib/download.utils.js";
 
 export async function getAllAudioScenario(savePath) {
   const spinner = ora('Скачиваю список ваших треков').start();
@@ -16,7 +16,7 @@ export async function getAllAudioScenario(savePath) {
   let namingIndex = 1;
 
   for (const audio of audioList) {
-    if (downloadedFilesMeta.find((s) => s.includes(`${audio.artist} - ${audio.title}`))) {
+    if (downloadedFilesMeta.find((s) => s.includes(`${audio.artist} - ${audio.title}`.replace(fileNameRegExp, '')))) {
       namingIndex++;
     } else {
       toDownload.push(audio);

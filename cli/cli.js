@@ -186,7 +186,7 @@ export async function checkToken() {
   }
 }
 
-program.action(async () => {
+const mainFunc = async () => {
   try {
     authorInfo();
     let config = await new Promise(async (resolve, reject) => {
@@ -224,10 +224,20 @@ program.action(async () => {
 
     await mainMenu()
   } catch (e) {
-    console.log(e);
+    console.log(e.message);
+    if (e.message.includes('User authorization failed: access_token has expired.')) {
+      console.log('YES!')
+      await getAccessTokenData();
+      console.log('YES!')
+      return mainFunc();
+    }
+
+    //console.log(e);
     console.log(red("❌ Что-то пошло не так"));
   }
-});
+}
+
+program.action(mainFunc);
 
 process.on("SIGINT", () => {
   // TODO: clear savePath folder from temp files
