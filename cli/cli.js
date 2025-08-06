@@ -63,7 +63,7 @@ export async function mainMenu(config = global['myConfig']) {
     "🔗 Скачать плейлист по ссылке",
     "⚙️ Показать путь для скачивания",
     "⚙️ Изменить путь для скачивания",
-    "Вывести заблокированные в регионе треки",
+    "⚙️ Вывыести путь к приложению",
     "⚙️ Очистить весь кэш (удалит всё, кроме пути сохранения треков)",
     "🚪👋 Выход"
   ];
@@ -76,6 +76,8 @@ export async function mainMenu(config = global['myConfig']) {
       choices
     },
   ]);
+
+  await checkToken();
 
   if (choice === choices[0]) {
     await getAllAudioScenario(config['save_path'])
@@ -107,9 +109,19 @@ export async function mainMenu(config = global['myConfig']) {
       .then(mainMenu);
   }
 
-  if (choice === choices[8]) {
-    fs.rmSync('./errors.json');
-    fs.rmSync('./all-music-data.json');
+  if (choice === choices[5]) {
+    console.log(`Путь: ${__dirname}`);
+    return mainMenu();
+  }
+
+  if (choice === choices[7]) {
+    try {
+      fs.rmSync('./errors.json');
+    } catch (e) {}
+
+    try {
+      fs.rmSync('./all-music-data.json');
+    } catch (e) {}
   }
 
   if (choice === choices[choices.length - 1]) {
@@ -132,6 +144,46 @@ function authorInfo() {
   console.log(`Название: ${data.title}`);
   console.log(`Автор: ${data.author}`);
   console.log(`Гитхаб: ${data.github}\n`);
+}
+
+async function getAccessTokenData() {
+  const { data } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "data",
+      message: "Введите свой access token (гайд тут): ", // TODO: Вставить ссылку на гайд, как достать токен/id
+    },
+  ]);
+
+  const tokenJson = JSON.parse(data);
+
+  console.log('Token: ', tokenJson.data);
+
+  global['myConfig']['token'] = tokenJson.data;
+  fs.writeFileSync('./config.json', JSON.stringify(global['myConfig']['token']));
+
+  const userId = tokenJson.data.user_id;
+
+  //TODO: добавить нормальную валидацию в сеттеры прямо
+  if (!userId || !tokenJson.data) {
+    console.log(red("❌ Токен или id введён неверно"));
+    process.exit(1);
+  }
+
+  vkApiService.setAccessToken(tokenJson.data.access_token);
+  vkApiService.setUserId(userId);
+}
+
+export async function checkToken() {
+  const config = global['myConfig'];
+  const token = config['token'];
+
+  const currentTime = Math.floor(Date.now() / 1000);
+
+  if (currentTime >= token.expires) {
+    console.log('Токен истёк, нужен новый.');
+    await getAccessTokenData();
+  }
 }
 
 program.action(async () => {
@@ -158,38 +210,17 @@ program.action(async () => {
       config = {};
     }
 
-    const { musicLink } = await inquirer.prompt([
-      {
-        type: "input",
-        name: "musicLink",
-        message: "Введите свой ВК id (гайд тут): ", // TODO: Вставить ссылку на гайд, как достать токен/id
-      },
-    ]);
+    global['myConfig'] = config;
 
-    const userId = parseInt(musicLink.split('audios')[1]);
+    if (!config['token']) {
+      await getAccessTokenData();
+    }
 
-    const { accessToken } = await inquirer.prompt([
-      {
-        type: "input",
-        name: "accessToken",
-        message: "Введите свой access token (гайд тут): ", // TODO: Вставить ссылку на гайд, как достать токен/id
-      },
-    ]);
+    await checkToken();
 
     if (!config['save_path']) {
       await getSaveFolder(config);
     }
-
-    //TODO: добавить нормальную валидацию в сеттеры прямо
-    if (!userId || !accessToken) {
-      console.log(red("❌ Токен или id введён неверно"));
-      process.exit(1);
-    }
-
-    vkApiService.setAccessToken(accessToken);
-    vkApiService.setUserId(userId);
-
-    global['myConfig'] = config;
 
     await mainMenu()
   } catch (e) {
@@ -199,6 +230,7 @@ program.action(async () => {
 });
 
 process.on("SIGINT", () => {
+  // TODO: clear savePath folder from temp files
   console.log(red("\n🛑 Вы нажали CTRL+C, тем самым закрыв программу"));
   controller.abort();
   process.exit(0);
