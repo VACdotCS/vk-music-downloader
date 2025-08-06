@@ -8,7 +8,7 @@
   "type": "module",
   "keywords": ["vk", "music", "download"],
   "author": "Vladimir Taburkin",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "description": "CLI for with useful utils for VK Music",
   "dependencies": {
     "@types/fluent-ffmpeg": "^2.1.27",

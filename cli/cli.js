@@ -186,6 +186,11 @@ export async function checkToken() {
   }
 }
 
+/**
+ * Copyright 2025 Original Vladimir Taburkin.
+ * Licensed under the Apache License, Version 2.0.
+ * @author Taburkin Vladimir
+ */
 const mainFunc = async () => {
   try {
     authorInfo();
