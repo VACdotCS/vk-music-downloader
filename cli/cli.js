@@ -235,7 +235,6 @@ const mainFunc = async () => {
       await getAccessTokenData();
       return mainFunc();
     }
-    //console.log(e);
   }
 }
 
