@@ -2,7 +2,7 @@ import fs from "fs";
 import {vkApiService} from "../../lib/vk-api.service.js";
 import * as path from "node:path";
 import ora from "ora";
-import {downloadBatchOfTracks, getNormalFileName} from "../../lib/download.utils.js";
+import {downloadBatchOfTracks, getNormalFileName, sanitizeFolderName} from "../../lib/download.utils.js";
 
 export async function getPlaylistTracksScenario(savePath) {
   const spinner = ora('Скачиваю список ваших плейлистов').start();
@@ -35,7 +35,7 @@ export async function getPlaylistTracksScenario(savePath) {
 
   for (const p of playlistsMetadata) {
     const pDownloadSpinner = ora(`Скачиваю плейлист: ${p.title}`)
-    const _savePath = path.resolve(`${savePath}/${p.title}`);
+    const _savePath = path.resolve(`${savePath}/${sanitizeFolderName(p.title)}`);
 
     try {
       fs.mkdirSync(_savePath);
@@ -67,7 +67,7 @@ export async function getPlaylistTracksScenario(savePath) {
     let namingIndex = 1;
 
     for (const audio of p.tracks) {
-      if (downloadedFilesMeta.find((s) => s.includes(`${audio.artist} - ${audio.title}`))) {
+      if (downloadedFilesMeta.find((s) => s.includes(getNormalFileName(audio)))) {
         namingIndex++;
       } else {
         toDownload.push(audio);
