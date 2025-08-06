@@ -227,11 +227,8 @@ const mainFunc = async () => {
     console.log(red("❌ Что-то пошло не так"));
 
     if (e.message.includes('access_token has expired')) {
-      console.log('YES!')
       await getAccessTokenData();
-      console.log('YES!')
       return mainFunc();
-
     }
     //console.log(e);
   }

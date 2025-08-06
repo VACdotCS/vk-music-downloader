@@ -6,10 +6,10 @@
     "run-cli": "node cli/cli.js"
   },
   "type": "module",
-  "keywords": [],
-  "author": "",
+  "keywords": ["vk", "music", "download"],
+  "author": "Vladimir Taburkin",
   "license": "ISC",
-  "description": "",
+  "description": "CLI for with useful utils for VK Music",
   "dependencies": {
     "@types/fluent-ffmpeg": "^2.1.27",
     "ascii-art": "^2.8.5",
