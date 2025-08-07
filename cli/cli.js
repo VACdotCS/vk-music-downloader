@@ -12,6 +12,7 @@ import * as path from "node:path";
 import {getPlaylistTracksByLinkScenario} from "./scenarios/get-playlist-tracks.scenario.js";
 import {getPlaylistTracksScenario} from "./scenarios/get-all-playlists-tracks.scenario.js";
 import {getTrackByLinkScenario} from "./scenarios/get-track-by-link.scenario.js";
+import {CacheController} from "../lib/cache-controller.js";
 
 program.version("1.0.0").description("VK Audio Downloader");
 
@@ -115,13 +116,8 @@ export async function mainMenu(config = global['myConfig']) {
   }
 
   if (choice === choices[7]) {
-    try {
-      fs.rmSync('./errors.json');
-    } catch (e) {}
-
-    try {
-      fs.rmSync('./all-music-data.json');
-    } catch (e) {}
+    CacheController.clearCache();
+    return mainMenu();
   }
 
   if (choice === choices[choices.length - 1]) {
@@ -151,7 +147,7 @@ async function getAccessTokenData() {
     {
       type: "input",
       name: "data",
-      message: "Введите свой access token (гайд тут https://github.com/VACdotCS/vk-music-downloader): ", // TODO: Вставить ссылку на гайд, как достать токен/id
+      message: "Введите свой access token (гайд тут https://github.com/VACdotCS/vk-music-downloader): ",
     },
   ]);
 
@@ -193,7 +189,10 @@ export async function checkToken() {
  */
 const mainFunc = async () => {
   try {
+    CacheController.init();
+
     authorInfo();
+
     let config = await new Promise(async (resolve, reject) => {
       fs.readFile('./config.json', (err, data) => {
         if (err) {
@@ -233,11 +232,13 @@ const mainFunc = async () => {
       process.emit('SIGINT');
     }
 
-    console.log(red("❌ Что-то пошло не так"));
     if (e.message.includes('access_token has expired')) {
       await getAccessTokenData();
       return mainFunc();
     }
+
+    console.log(red("❌ Что-то пошло не так"));
+    //console.log(e);
   }
 }
 
@@ -247,15 +248,7 @@ process.on("SIGINT", () => {
   console.log(red("\n🛑 Вы нажали CTRL+C, тем самым закрыв программу"));
   controller.abort();
 
-  // Cleat temp files
-  const path = global['myConfig']['save_path'];
-  const files = fs.readdirSync(path, { recursive: true});
-
-  for (const file of files) {
-    if (/temp-.*\.ts/.test(file)) {
-      fs.unlinkSync(path + `/${file}`);
-    }
-  }
+  CacheController.clearTempFiles();
 
   process.exit(0);
 });

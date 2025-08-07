@@ -3,6 +3,7 @@ import {vkApiService} from "../../lib/vk-api.service.js";
 import * as path from "node:path";
 import ora from "ora";
 import {downloadBatchOfTracks, getNormalFileName, sanitizeFolderName} from "../../lib/download.utils.js";
+import {CacheController} from "../../lib/cache-controller.js";
 
 export async function getPlaylistTracksScenario(savePath) {
   const spinner = ora('Скачиваю список ваших плейлистов').start();
@@ -34,8 +35,10 @@ export async function getPlaylistTracksScenario(savePath) {
 
 
   for (const p of playlistsMetadata) {
+    const title = sanitizeFolderName(p.title);
+
     const pDownloadSpinner = ora(`Скачиваю плейлист: ${p.title}`)
-    const _savePath = path.resolve(`${savePath}/${sanitizeFolderName(p.title)}`);
+    const _savePath = path.resolve(`${savePath}/${title}`);
 
     try {
       fs.mkdirSync(_savePath);
@@ -60,7 +63,8 @@ export async function getPlaylistTracksScenario(savePath) {
     }
 
     const toDownload = [];
-    fs.writeFileSync(`${p.title}-music-data.json`, JSON.stringify(p.tracks));
+
+    CacheController.add(`${title}-music-data.json`, JSON.stringify(p.tracks));
 
     const downloadedFilesMeta = fs.readdirSync(_savePath);
 
