@@ -56,24 +56,26 @@ export async function mainMenu(config = global['myConfig']) {
     },
   ]);
 
-  await checkToken();
-
   if (choice === choices[0]) {
+    await checkToken();
     await getAllAudioScenario(config['save_path'])
       .then(mainMenu)
   }
 
   if (choice === choices[1]) {
+    await checkToken();
     await getPlaylistTracksScenario(config['save_path'])
       .then(mainMenu)
   }
 
   if (choice === choices[2]) {
+    await checkToken();
     await getTrackByLinkScenario(config['save_path'])
       .then(mainMenu)
   }
 
   if (choice === choices[3]) {
+    await checkToken();
     await getPlaylistTracksByLinkScenario(config['save_path'])
       .then(mainMenu)
   }
