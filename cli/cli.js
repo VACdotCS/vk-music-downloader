@@ -238,7 +238,9 @@ const mainFunc = async () => {
     }
 
     console.log(red("❌ Что-то пошло не так"));
-    //console.log(e);
+    if (process.env.NODE_ENV === 'dev') {
+      console.log(e);
+    }
   }
 }
 

@@ -2,6 +2,7 @@
 .idea
 node_modules
 downloads
+cache
 
 all-music-data.json
 errors.json

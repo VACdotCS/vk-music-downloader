@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "run-cli": "node cli/cli.js"
+    "run-cli": "NODE_ENV=dev node cli/cli.js"
   },
   "type": "module",
   "keywords": ["vk", "music", "download"],
