@@ -96,6 +96,7 @@ export async function mainMenu(config = global['myConfig']) {
   }
 
   if (choice === choices[choices.length - 1]) {
+    CacheController.clearTempFiles();
     process.exit(0);
   }
 }
