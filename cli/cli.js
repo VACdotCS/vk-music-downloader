@@ -15,7 +15,7 @@ import {getTrackByLinkScenario} from "./scenarios/get-track-by-link.scenario.js"
 import {CacheController} from "../lib/cache-controller.js";
 import { fileURLToPath } from 'url';
 
-program.version("1.0.0").description("VK Audio Downloader");
+program.version("1.0.3").description("VK Audio Downloader");
 
 const dev = process.env.NODE_ENV === 'dev';
 
