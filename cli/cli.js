@@ -13,6 +13,7 @@ import {getPlaylistTracksByLinkScenario} from "./scenarios/get-playlist-tracks.s
 import {getPlaylistTracksScenario} from "./scenarios/get-all-playlists-tracks.scenario.js";
 import {getTrackByLinkScenario} from "./scenarios/get-track-by-link.scenario.js";
 import {CacheController} from "../lib/cache-controller.js";
+import { fileURLToPath } from 'url';
 
 program.version("1.0.0").description("VK Audio Downloader");
 
@@ -86,7 +87,7 @@ export async function mainMenu(config = global['myConfig']) {
   }
 
   if (choice === choices[6]) {
-    console.log(`Путь: ${__dirname}`);
+    console.log(`Путь: ${path.dirname(fileURLToPath(import.meta.url))}`);
     return mainMenu();
   }
 

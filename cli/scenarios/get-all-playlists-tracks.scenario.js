@@ -39,6 +39,7 @@ export async function getPlaylistTracksScenario(savePath) {
 
     const pDownloadSpinner = ora(`Скачиваю плейлист: ${p.title}`)
     const _savePath = path.resolve(`${savePath}/${title}`);
+    pDownloadSpinner.start();
 
     try {
       fs.mkdirSync(_savePath);
