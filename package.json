@@ -3,10 +3,14 @@
   "version": "1.0.1",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "run-cli": "NODE_ENV=dev node cli/cli.js"
+    "run-cli": "cross-env NODE_ENV=dev node cli/cli.js"
   },
   "type": "module",
-  "keywords": ["vk", "music", "download"],
+  "keywords": [
+    "vk",
+    "music",
+    "download"
+  ],
   "author": "Vladimir Taburkin",
   "license": "Apache-2.0",
   "description": "CLI for with useful utils for VK Music",
@@ -26,5 +30,8 @@
   },
   "bin": {
     "vk-music-downloader": "cli/cli.js"
+  },
+  "devDependencies": {
+    "cross-env": "^10.0.0"
   }
 }

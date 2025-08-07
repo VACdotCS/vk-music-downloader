@@ -16,32 +16,7 @@ import {CacheController} from "../lib/cache-controller.js";
 
 program.version("1.0.0").description("VK Audio Downloader");
 
-function catchApiError(err, spinner) {
-  if (err.code === 'ECONNREFUSED') {
-    spinner.fail(`API is not reachable. Check servers or try again later.`);
-    return;
-  }
-  if (err instanceof AxiosError) {
-    spinner.fail(`API error: ${err.message}. ${JSON.stringify(err.response?.data || {})}`);
-  }
-}
-
-async function retry(spinner, func, error) {
-  catchApiError(error, spinner)
-
-  const { choice } = await inquirer.prompt([
-    {
-      type: "list",
-      name: "choice",
-      message: "Retry?",
-      choices: ["Yes", "No"],
-    },
-  ]);
-
-  if (choice === "Yes") {
-    await func(spinner);
-  }
-}
+const dev = process.env.NODE_ENV === 'dev';
 
 async function getSaveFolder(config) {
   const { savePath } = await inquirer.prompt([
@@ -139,7 +114,10 @@ function authorInfo() {
 
   console.log(`Название: ${data.title}`);
   console.log(`Автор: ${data.author}`);
-  console.log(`Гитхаб: ${data.github}\n`);
+  console.log(`Гитхаб: ${data.github}${dev ? '' : '\n'}`);
+
+  if (dev) console.log('Мод:      Разработка\n')
+
 }
 
 async function getAccessTokenData() {
