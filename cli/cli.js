@@ -3,7 +3,6 @@
 import { program } from "commander";
 import { red } from "colorette";
 import inquirer from "inquirer";
-import axios, {AxiosError} from "axios";
 import * as fs from "node:fs";
 import {getAllAudioScenario} from "./scenarios/get-all-audio.scenario.js";
 import {controller, vkApiService} from "../lib/vk-api.service.js";
@@ -14,6 +13,7 @@ import {getPlaylistTracksScenario} from "./scenarios/get-all-playlists-tracks.sc
 import {getTrackByLinkScenario} from "./scenarios/get-track-by-link.scenario.js";
 import {CacheController} from "../lib/cache-controller.js";
 import { fileURLToPath } from 'url';
+import {getUnlimitedTokenScenario} from "./scenarios/get-unlimited-token.scenario.js";
 
 program.version("1.0.3").description("VK Audio Downloader");
 
@@ -43,6 +43,7 @@ export async function mainMenu(config = global['myConfig']) {
     "⚙️ Вывести путь к приложению", // 6
     "⚙️ Очистить весь кэш (удалит всё, кроме пути сохранения треков)", // 7
     "⚙️ Вывести заблокированные треки",
+    "⚙️ Получить бесконечный токен",
     //new command here
     "🚪👋 Выход"
   ];
@@ -57,7 +58,7 @@ export async function mainMenu(config = global['myConfig']) {
   ]);
 
   if (choice === choices[0]) {
-    await checkToken();
+    //await checkToken();
     await getAllAudioScenario(config['save_path'])
       .then(mainMenu)
   }
@@ -103,6 +104,11 @@ export async function mainMenu(config = global['myConfig']) {
   if (choice === choices[8]) {
     CacheController.outputBlockedTracks();
     return mainMenu();
+  }
+
+  if (choice === choices[9]) {
+    await getUnlimitedTokenScenario(config)
+      .then(mainMenu)
   }
 
   if (choice === choices[choices.length - 1]) {
@@ -182,7 +188,7 @@ const mainFunc = async () => {
 
     authorInfo();
 
-    let config = await new Promise(async (resolve, reject) => {
+    let config = await new Promise(async (resolve) => {
       fs.readFile('./config.json', (err, data) => {
         if (err) {
           resolve(null);
@@ -209,7 +215,7 @@ const mainFunc = async () => {
       await getAccessTokenData();
     }
 
-    await checkToken();
+    //await checkToken();
 
     if (!config['save_path']) {
       await getSaveFolder(config);
